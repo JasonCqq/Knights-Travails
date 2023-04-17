@@ -5,7 +5,6 @@
   padding: 0;
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
-  overflow: hidden;
 }
 
 #main {
@@ -25,18 +24,20 @@
 #gameBoard {
   margin: auto;
   margin-top: 3vh;
-  width: 65%;
+  width: 55%;
   height: 80vh;
-  border: 1px solid white;
-  border-radius: 25px;
   background-color: white;
   box-shadow: 0px 0px 100px gray;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
-  gap: 15px;
+  overflow: hidden;
 }
 
-#gameBoard div {
-  background-color: #5cbdb9;
+.black {
+  background-color: black;
+}
+
+.white {
+  background-color: white;
 }
