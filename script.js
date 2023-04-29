@@ -6,35 +6,36 @@ class Knight {
   }
 
   move(x = this.start) {
-    let mainQueue = this.possibleMoves(x); // [[], [], [], [], []]
-    const visited = new Set(); // {}
-    const allPaths = new Set(); // {}
-
+    let mainQueue = this.possibleMoves(x);
+    const visited = new Set();
+    const allPaths = new Set();
+    let currentPath = [];
     //Gets all possible moves
     while (mainQueue.length !== 0) {
-      console.log(allPaths);
-      //while queue is not empty
       let dequeuedMove = mainQueue.shift();
-      visited.add(dequeuedMove);
-
-      let currentPath = [];
+      visited.add(JSON.stringify(dequeuedMove));
       currentPath.push(dequeuedMove);
-
-      let queue2 = this.possibleMoves(dequeuedMove);
-      for (let i = 0; i < queue2.length; i++) {
-        if (!visited.has(queue2[i])) {
-          currentPath.push(queue2[i]);
-          visited.add(queue2[i]);
-          console.log(queue2[i][0], queue2[i][1], this.goal[0], this.goal[1]);
-          if (queue2[i][0] === this.goal[0] && queue2[i][1] === this.goal[1]) {
-            currentPath.push(queue2[i]);
+      console.log(currentPath);
+      let queue2 = this.possibleMoves(dequeuedMove).filter(
+        (move) => !visited.has(JSON.stringify(move))
+      );
+      while (queue2.length !== 0) {
+        let newMove = queue2.shift();
+        //if not visited
+        if (!visited.has(JSON.stringify(newMove))) {
+          //add to current path and visited
+          currentPath.push(newMove);
+          visited.add(JSON.stringify(newMove));
+          //if move is goal add to allPaths and empty the path for upcoming moves
+          if (newMove[0] === this.goal[0] && newMove[1] === this.goal[1]) {
             allPaths.add([...currentPath]);
             currentPath = [];
           } else {
-            currentPath.pop();
+            mainQueue.push(newMove);
           }
         }
       }
+      currentPath = [];
     }
     return allPaths;
   }
