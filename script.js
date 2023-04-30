@@ -5,41 +5,66 @@ class Knight {
     this.showBoard();
   }
 
-  move(x = this.start) {
-    let mainQueue = this.possibleMoves(x);
-    const visited = new Set();
-    const allPaths = new Set();
-    let currentPath = [];
-    //Gets all possible moves
+  move() {
+    const root = new Move(this.start, null);
+    const mainQueue = [root];
+    const allPaths = [];
+    const visited = new Map();
+    let counter = 0;
+
     while (mainQueue.length !== 0) {
-      let dequeuedMove = mainQueue.shift();
-      visited.add(JSON.stringify(dequeuedMove));
-      currentPath.push(dequeuedMove);
-      console.log(currentPath);
-      let queue2 = this.possibleMoves(dequeuedMove).filter(
-        (move) => !visited.has(JSON.stringify(move))
+      let dequeueFromMain = mainQueue.shift();
+      let dequeuedMove = new Move(dequeueFromMain.current, null);
+
+      counter++;
+      visited.set(`move${counter}`, dequeueFromMain.current);
+
+      //Set previous node to Root if no previous nodes.
+      JSON.stringify(dequeueFromMain.current) ===
+        JSON.stringify(root.current) && dequeueFromMain.current !== undefined
+        ? (dequeuedMove.prev = root)
+        : (dequeuedMove.prev = dequeueFromMain);
+
+      //Push new moves into mainQueue
+      let tempMoveArr = this.possibleMoves(dequeueFromMain).filter(
+        (move) => !this.visitedBefore(move.current, visited)
       );
-      while (queue2.length !== 0) {
-        let newMove = queue2.shift();
-        //if not visited
-        if (!visited.has(JSON.stringify(newMove))) {
-          //add to current path and visited
-          currentPath.push(newMove);
-          visited.add(JSON.stringify(newMove));
-          //if move is goal add to allPaths and empty the path for upcoming moves
-          if (newMove[0] === this.goal[0] && newMove[1] === this.goal[1]) {
-            allPaths.add([...currentPath]);
-            currentPath = [];
-          } else {
-            mainQueue.push(newMove);
+
+      for (let a = 0; a < tempMoveArr.length; a++) {
+        counter++;
+        visited.set(`move${counter}`, tempMoveArr[a].current);
+        if (
+          tempMoveArr[a].current[0] === this.goal[0] &&
+          tempMoveArr[a].current[1] === this.goal[1]
+        ) {
+          let currentPath = [];
+          let moveRoot = tempMoveArr[a].prev;
+          while (moveRoot) {
+            console.log(moveRoot);
+            currentPath.push(moveRoot.current);
+            moveRoot = moveRoot.prev;
           }
+          currentPath.reverse();
+          let newPath = [...currentPath, this.goal];
+          allPaths.push(newPath);
+        } else {
+          console.log("hi");
+          mainQueue.push(tempMoveArr[a]);
         }
       }
-      currentPath = [];
     }
     return allPaths;
   }
 
+  //helper function to check if move has been visited
+  visitedBefore(move, map) {
+    for (const value of map.values()) {
+      if (JSON.stringify(move) === JSON.stringify(value)) {
+        return true;
+      }
+    }
+    return false;
+  }
   //creates board, with each div's position id and calls placePieceAndEndPoint();
   showBoard() {
     //row counter
@@ -94,7 +119,7 @@ class Knight {
     });
   }
   //return possible moves array without out of bound moves.
-  possibleMoves(i) {
+  possibleMoves(node) {
     function isOutOfBounds(num1, num2) {
       if (num1 < 0 || num1 > 7 || num2 < 0 || num2 > 7) {
         return false;
@@ -104,19 +129,30 @@ class Knight {
     }
 
     let moves = [
-      [i[0] - 1, i[1] - 2],
-      [i[0] - 2, i[1] - 1],
-      [i[0] + 1, i[1] - 2],
-      [i[0] + 2, i[1] - 1],
-      [i[0] - 2, i[1] + 1],
-      [i[0] - 1, i[1] + 2],
-      [i[0] + 1, i[1] + 2],
-      [i[0] + 2, i[1] + 1],
+      [node.current[0] - 1, node.current[1] - 2],
+      [node.current[0] - 2, node.current[1] - 1],
+      [node.current[0] + 1, node.current[1] - 2],
+      [node.current[0] + 2, node.current[1] - 1],
+      [node.current[0] - 2, node.current[1] + 1],
+      [node.current[0] - 1, node.current[1] + 2],
+      [node.current[0] + 1, node.current[1] + 2],
+      [node.current[0] + 2, node.current[1] + 1],
     ];
 
     let filtered = moves.filter((move) => isOutOfBounds(move[0], move[1]));
-    return filtered;
+    let array = [];
+    for (let i = 0; i < filtered.length; i++) {
+      let move = new Move(filtered[i], node);
+      array.push(move);
+    }
+    return array;
   }
 }
 
+class Move {
+  constructor(current, prev) {
+    this.current = current;
+    this.prev = prev;
+  }
+}
 let knight = new Knight();
