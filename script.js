@@ -8,7 +8,7 @@ class Knight {
   move() {
     const root = new Move(this.start, null);
     const mainQueue = [root];
-    const allPaths = [];
+    let path = [];
     const visited = new Map();
     let counter = 0;
 
@@ -40,20 +40,17 @@ class Knight {
           let currentPath = [];
           let moveRoot = tempMoveArr[a].prev;
           while (moveRoot) {
-            console.log(moveRoot);
             currentPath.push(moveRoot.current);
             moveRoot = moveRoot.prev;
           }
           currentPath.reverse();
-          let newPath = [...currentPath, this.goal];
-          allPaths.push(newPath);
+          path.push(...currentPath, this.goal);
         } else {
-          console.log("hi");
           mainQueue.push(tempMoveArr[a]);
         }
       }
     }
-    return allPaths;
+    return path;
   }
 
   //helper function to check if move has been visited
@@ -85,6 +82,7 @@ class Knight {
       }
     }
     this.placePieceAndEndPoint();
+    this.travailButtonFunction();
   }
   //get user input of start and goal helper function.
   placePieceAndEndPoint() {
@@ -106,7 +104,11 @@ class Knight {
           square.appendChild(knightPiece);
           piecePlaced = true;
           //place goal piece second
-        } else if (piecePlaced && goalPlaced === false) {
+        } else if (
+          piecePlaced &&
+          square.id !== knightPiece.parentElement.id &&
+          goalPlaced === false
+        ) {
           let div = document.createElement("div");
           div.id = "endGoal";
           square.appendChild(div);
@@ -118,6 +120,20 @@ class Knight {
       });
     });
   }
+
+  travailButtonFunction() {
+    let btn = document.getElementById("travail");
+    btn.addEventListener("click", () => {
+      if (this.start && this.goal !== null) {
+        let path = this.move();
+        for (let i = 0; i < path.length; i++) {
+          let getSquare = document.getElementById(`${path[i][0]}${path[i][1]}`);
+          getSquare.style.backgroundColor = "red";
+        }
+      }
+    });
+  }
+
   //return possible moves array without out of bound moves.
   possibleMoves(node) {
     function isOutOfBounds(num1, num2) {
@@ -148,7 +164,6 @@ class Knight {
     return array;
   }
 }
-
 class Move {
   constructor(current, prev) {
     this.current = current;
