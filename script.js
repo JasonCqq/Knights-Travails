@@ -75,7 +75,7 @@ class Knight {
         div.id = `${i}${j}`;
 
         (i + j) % 2 ? (isBlack = true) : (isBlack = false);
-        isBlack ? div.classList.add("black") : div.classList.add("white");
+        isBlack ? div.classList.add("gray") : div.classList.add("white");
 
         playBoard.appendChild(div);
         isBlack = !isBlack;
@@ -83,6 +83,7 @@ class Knight {
     }
     this.placePieceAndEndPoint();
     this.travailButtonFunction();
+    this.restartButtonFunction();
   }
   //get user input of start and goal helper function.
   placePieceAndEndPoint() {
@@ -104,25 +105,21 @@ class Knight {
           square.appendChild(knightPiece);
           piecePlaced = true;
           //place goal piece second
-        } else if (
-          piecePlaced &&
-          square.id !== knightPiece.parentElement.id &&
-          goalPlaced === false
-        ) {
+        } else if (piecePlaced && goalPlaced === false) {
           let div = document.createElement("div");
           div.id = "endGoal";
           square.appendChild(div);
           goalPlaced = true;
 
-          knight.start = Array.from(knightPiece.parentElement.id).map(Number);
-          knight.goal = Array.from(div.parentElement.id).map(Number);
+          this.start = Array.from(knightPiece.parentElement.id).map(Number);
+          this.goal = Array.from(div.parentElement.id).map(Number);
         }
       });
     });
   }
 
   travailButtonFunction() {
-    let btn = document.getElementById("travail");
+    const btn = document.getElementById("travail");
     btn.addEventListener("click", () => {
       if (this.start && this.goal !== null) {
         let path = this.move();
@@ -131,6 +128,33 @@ class Knight {
           getSquare.style.backgroundColor = "red";
         }
       }
+    });
+  }
+
+  restartButtonFunction() {
+    const btn = document.getElementById("restart");
+    const playBoard = document.getElementById("gameBoard");
+    const playerBoardArray = Array.from(playBoard.querySelectorAll(".piece"));
+    btn.addEventListener("click", () => {
+      if (this.start !== null && this.goal !== null) {
+        playerBoardArray.forEach((box) => {
+          if (box.style.backgroundColor === "red") {
+            box.style.backgroundColor = box.classList[1];
+          }
+
+          if (
+            (Number(box.id[0]) === Number(this.goal[0]) &&
+              Number(box.id[1]) === Number(this.goal[1])) ||
+            (Number(box.id[0]) === Number(this.start[0]) &&
+              Number(box.id[1]) === Number(this.start[1]))
+          ) {
+            box.removeChild(box.firstElementChild);
+          }
+        });
+      }
+      this.start = null;
+      this.goal = null;
+      this.placePieceAndEndPoint();
     });
   }
 
